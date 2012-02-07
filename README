@@ -1,0 +1,207 @@
+C and Systems Programming Fall 2009
+Prof. Benson 
+
+
+Juliet Rubin
+library: glist.c
+application: hist.c
+11/26/09
+
+glist library INFORMATION:
+glist library is a library that implements Python style list in C
+glist incorporates some Python list features:
+	setting and printing list
+	list can contain elements(gnodes) of different data types(String, int, double, list)
+	list can contain other lists
+	select elements using an index
+	modify an element using an index
+	append to a list
+	determine the length of a list
+	insert a gnode into a list
+	delete a list
+	find minimum element in list
+	find maximum element in list
+	concatenate elements of a list to another list
+	reverse a list
+	sort a list
+
+
+bool is_not_SEN(struct gnode *n) 
+	-returns true if the gnode's enum gtype is not SEN
+	-returns false otherwise
+	-used as the condition in some method's for loops
+
+struct gnode *next(struct gnode *n)
+	-returns the next gnode after n
+	-used for getting next gnode after n
+	-not used for setting the n's next struct gnode variable 
+
+struct gnode *prev(struct gnode *n)
+	-returns the previous gnode after n
+	-used for getting previous gnode after n
+	-not used for setting n's struct gnode variable prev
+
+void gnode_free(struct gnode *n)
+void glist_free(struct glist *l)
+	-gnode_free and glist_free are recursive fuctions
+	-glist_free removes and pass all of its gnodes to gnode_free
+	-glist_free then frees the glist l
+	-gnode_free checks to see if n's gnode's emum gtype
+	value is a STR or a LST
+		-if it is a STR it frees the String value the gnodes points to
+		-if it is a glist it passes the gnode to glist_free
+	-gnode_free then frees the gnode n 
+
+void gnode_print(struct gnode *n)
+void glist_print(struct glist *l);
+void glist_println(char *name, struct glist *l);
+	-gnode_print and glist_print are recursive fuctions
+	-glist_print loops through its gnodes 
+	passes them to gnode_print
+	-gnode_print prints the gnode val if the gnode's emum gtype is a STR, INT, or DBL
+	if the gnode's emum gtype is a LST, gnode_print
+	passes the gnode to glist_print
+	-glist_println formates the printing of glist_print
+	by printint out name and then passing l to glist_print
+
+
+struct gnode *gnode_copy(struct gnode *n)
+struct glist *glist_copy(struct glist *l)
+	-gnode_copy and glist_copy are recursive functions
+	-glist_copy loops through it gnodes and passes them to gnode_copy
+	-gnode_copy creates a new gnode and calls the appropriate gnode_set method
+	on the new gnode; if the gnode's emum gtype is a LST then it passes the gnode
+	to glist_copy to get a copy of the gnode before setting the value of the new gnode
+	-gnode_copy returns a copy of n
+	-glist_copy returns a copy of l
+
+bool gnode_isequal(struct gnode *n1, struct gnode *n2)
+bool glist_isequal(struct glist *l1, struct glist *l2)
+	-glist_isequal returns false if l1 and l2 are not the same length
+	-glist_isequal loops through l1 and l2 gnodes 
+	-glist_isequal passes l1 and l2 corresponding gnodes to 
+	gnode_isequal
+	-if gnode_isequal returns false at anytime glist_isequal returns false
+
+
+void glist_insert(struct glist *l, struct gnode *n, int index)
+	-fails if index is greater than glist length or less than zero
+	-glist_insert loops through l to get the gnode at index index
+	-glist_insert then inserts n before the gnode at index index
+	
+	
+struct gnode *glist_getindex(struct glist *l, int i)
+	-fails if i is less then 0 or greater than or equal to l's length
+	-glist_getindex loops through l's gnodes keeping track of the gnode's 
+	index
+	-when a gnode in l is at index i the gnode is returned
+	
+	
+int glist_find(struct glist *l, struct gnode *n)
+	-glist_find loops through l's gnodes keeping track of the gnodes index
+	-glist_find checks if the a gnode is equal to n
+	-if the gnode is equal to n glist_find returns the index 
+	of the gnode equal to n
+	-if glist_find's loop executes without finding a gnode equal to n
+	glist_find returns -1
+
+
+struct glist *glist_reverse(struct glist *l)
+	-glist_reverse declares a pointer reverse_glist and points it to a new glist
+	-glist_reverse loops through l's gnodes backwards
+	and adds a copy of l's gnode to reverse_glist
+	-after the loop executes glist_reverse frees l 
+	and points l to a copy of glist_reverse
+	-glist_reverse then frees reverse_glist
+	-glist_reverse returns l
+	
+struct glist *glist_sort(struct glist *l)
+	-glist_sort declares a pointer sorted_glist and points it to a new glist
+	-glist_sort loops through l finding l's current gnode with the minimum value
+	-glist_sort then removes that gnode from l and adds it to sorted_glist
+	-the next iteration of the loop l's previous gnode with the minimum value
+	has been removed so the gnode with the next minimum value 
+	is found, removed and added to sorted_glist
+	-glist_sort then frees l and points l to a copy of sorted_glist
+	-glist_sort then frees sorted_glist and returns l
+	
+	
+
+struct glist *glist_concat(struct glist *l1, struct glist *l2)
+	-glist_concat loops through l2 getting its gnodes 
+	and adds a copy of l2 gnodes to l1
+	-glist_concat then returns l1
+
+
+
+
+hist application INFORMATION:
+hist creates a histogram from a glist and the values start, end, binsize, maxbar
+
+void print_histogram(struct glist *l, double start, double end, double binsize, int maxbar) 
+	-fails if start is less than zero
+	-fails if end is less than start + binsize
+	-fails if maxbar or binsize are less than or equal to zero
+	
+	-loops for the number of bins there will be
+	in the loop:
+		-finds the number of hashes to print for each bin 
+		using the functions bincount and bin_length 
+		-the start of the bin and the end of the bin are printed 
+		formated using functions get_decimal_places and get_total_number_places
+		-for the number of hashes to print an inner for loop prints a hash symbol
+
+
+int bincount(struct glist *l, double start_of_bin, double end_bin)
+	-finds the number of gnode in l that belong to the bin
+ 	-sorts l
+	-loops through l's sorted gnodes 
+	and counts the number of gnodes equal to or greater than start_of_bin
+	and less then end_of_bin
+	-if a gnode is greater then the end_bin the count is returned
+	-if the for loop completes the count is returned
+	
+	
+	
+int bin_length(double bincount, double max_bincount, double maxbar)
+	-finds the number of hashes to print by
+	dividing bincount(number of gnodes belonging to the bin)
+	 by max_bincount(number of gnodes in the glist total)
+	and multiplying that number by maxbar(maximum number of
+	hash marks to print for all bins)
+	
+	
+int get_decimal_places(double start, double binsize) 
+	-either will return 2 or 0 
+	-therefore print_histogram will
+	either print showing 0 or 2 decimal places 
+	for the start and end values of the bins
+	-if the start or the binsize have decimal values greater 
+	than or equal to 0.01 it returns 2 
+	-else returns 0
+	
+	
+int get_total_number_places(double end, int decimal_places) 
+	-returns the appropriate width that print_histogram 
+	will use to print the start and end values of the bins
+	-assures that all the start and end values will be printed aligned on the right
+	-get number of places to the left of the decimal point for end
+	-if the decimal_places will be included then adds 1(for the '.') 
+	plus the number of decimal places to be printed
+	-returns number of places to be printed
+	
+	
+	
+Largest glist length hist.c can handle: using arguments 0 100 10 50
+10,000 1.8 around seconds
+20,000 6.1 around seconds	
+30,000 13.5 around seconds
+40,000 23.8	around seconds
+50,000 32 around seconds
+60,000 52 around seconds
+70,000 172 around seconds
+80,000	100 around seconds
+90,000	224 around seconds
+100,000	255 around seconds
+110,000	200 around seconds
+100,000
